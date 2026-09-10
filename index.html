@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitMax</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #080808;
+            --card-bg: #141414;
+            --card-border: #262626;
+            --accent-color: #ff003c;
+            --text-color: #ffffff;
+            --text-secondary: #a1a1aa;
+            --timer-color: #38bdf8;
+            --video-color: #a855f7;
+            --info-color: #22c55e;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px 12px 100px 12px;
+        }
+
+        header { text-align: center; margin-bottom: 15px; }
+        h1 { font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        h1 span { color: var(--accent-color); }
+        .subtitle { color: var(--text-secondary); font-size: 0.8rem; margin: 0; }
+
+        .tabs {
+            display: flex;
+            background-color: var(--card-bg);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
+        }
+
+        .days-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .day-btn {
+            flex: 1;
+            min-width: 45px;
+            background-color: #1a1a1a;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            padding: 8px 0;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .day-btn.active {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: rgba(255, 0, 60, 0.1);
+        }
+
+        .content-section, .day-content { display: none; }
+        .content-section.active, .day-content.active { display: block; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--card-border);
+        }
+
+        .card h3 {
+            margin: 0 0 12px 0;
+            color: var(--accent-color);
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .item:last-child { border-bottom: none; }
+
+        .item-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .item-main label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .item-info { display: flex; flex-direction: column; }
+
+        .rest-time {
+            font-size: 0.75rem;
+            color: var(--timer-color);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .item.completed .item-main label {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--card-border);
+            border-radius: 6px;
+            background-color: #0f0f0f;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        input[type="checkbox"]:checked::before {
+            content: "✓";
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .video-btn {
+            background-color: rgba(168, 85, 247, 0.1);
+            color: var(--video-color);
+            border: 1px solid var(--video-color);
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .info-btn {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .timer-btn {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--timer-color);
+            border: 1px solid var(--timer-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .desc-box {
+            display: none;
+            background-color: #121212;
+            border-left: 3px solid var(--info-color);
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #d1d5db;
+            line-height: 1.4;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .desc-box.active { display: block; }
+
+        .active-timer-box {
+            display: none;
+            background-color: #0d1520;
+            border: 1px solid var(--timer-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+        }
+
+        .active-timer-box.active { display: block; }
+
+        .timer-status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--timer-color);
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background-color: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--timer-color);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .water-tracker { text-align: center; }
+        .water-counter { font-size: 1.8rem; font-weight: 800; color: var(--timer-color); margin-bottom: 12px; }
+        .water-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .water-btn {
+            background-color: #0f172a;
+            border: 1px solid #0284c7;
+            color: var(--timer-color);
+            padding: 12px 5px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .recipe-box { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); }
+        .recipe-box:last-child { border-bottom: none; }
+        .recipe-title { font-weight: bold; color: #ffffff; margin-bottom: 4px; font-size: 0.95rem; }
+        .recipe-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
+        .recipe-macros { font-size: 0.75rem; color: var(--accent-color); margin-top: 4px; font-weight: 600; }
+
+        .notes-area {
+            width: 100%;
+            height: 250px;
+            background-color: #0f0f0f;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-color);
+            padding: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+        }
+
+        .reset-container { text-align: center; margin-top: 30px; }
+        .reset-btn {
+            background-color: rgba(255, 0, 60, 0.1);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>FIT<span>MAX</span></h1>
+        <p class="subtitle">182cm | 90kg | ПРОГРАМА ЗА НАЧИНАЕЩИ</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'workouts')">Тренировки</button>
+        <button class="tab-btn" onclick="switchTab(event, 'recipes')">🥗 Рецепти & Меню</button>
+        <button class="tab-btn" onclick="switchTab(event, 'water')">💧 Вода</button>
+        <button class="tab-btn" onclick="switchTab(event, 'notes')">📝 Бележки</button>
+    </div>
+
+    <!-- 1. ТРЕНИРОВКИ -->
+    <div id="workouts" class="content-section active">
+        <div class="days-bar">
+            <button class="day-btn active" onclick="switchDay(event, 'w-mon', 'w-day')">ПОН</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-tue', 'w-day')">ВТО</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-wed', 'w-day')">СРЯ</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-thu', 'w-day')">ЧЕТ</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-fri', 'w-day')">ПЕТ</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-sat', 'w-day')">СЪБ</button>
+            <button class="day-btn" onclick="switchDay(event, 'w-sun', 'w-day')">НЕД</button>
+        </div>
+
+        <!-- Понеделник -->
+        <div id="w-mon" class="day-content w-day active">
+            <div class="card">
+                <h3>🔴 Понеделник: Гърди & Трицепс</h3>
+                
+                <div class="item" data-id="pushups" data-sets="3" data-rest="90">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Лицеви опори (или от колене) - 3x8-10</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=как+се+правят+лицеви+опори+български" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Тялото е в права линия. Спускай гърдите плавно почти до пода, без да сгъваш кръста. Ако ти е трудно, опирай коленете в пода.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+
+                <div class="item" data-id="incline_pushups" data-sets="3" data-rest="90">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Лицеви с ръце на стол/легло - 3x10</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=лицеви+опори+на+стол+техника" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Постави ръцете на ръба на леглото или стабилен стол. По-лесен вариант от стандартните лицеви опори, подходящ за натрупване на сила.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+
+                <div class="item" data-id="dips" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Кофички на стол - 3x8</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=кофички+на+стол+бг" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Следвай с гръб близо до стола. Сгъвай лактите до 90 градуса и избутвай с трицепса. Дръж краката свити за по-лесно изпълнение.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вторник -->
+        <div id="w-tue" class="day-content w-day">
+            <div class="card">
+                <h3>🔴 Вторник: Гръб & Бицепс</h3>
+                <div class="item" data-id="table_rows" data-sets="3" data-rest="90">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Набирания под маса - 3x8</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=набиране+под+маса+у дома" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Легни под стабилна маса, хвани ръба и издърпай гърдите си нагоре, като държиш петите на пода и тялото изпънато.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="superman" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Супермен за гръб - 3x12</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=супермен+упражнение+за+гръб" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Легни по корем. Повдигни едновременно гърдите и краката си от пода за 1-2 секунди, след което ги отпусни плавно.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="bicep_curls" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Сгъване с раница/бутилки - 3x10</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=сгъване+за+бицепс+с+бутилки" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Дръж лактите залепени до тялото. Сгъвай ръцете в лактите, като стягаш бицепса в горната точка.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сряда -->
+        <div id="w-wed" class="day-content w-day">
+            <div class="card">
+                <h3>🔴 Сряда: Крака & Кор</h3>
+                <div class="item" data-id="squats" data-sets="3" data-rest="90">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Клекове със собствено тегло - 3x12</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=правилен+клек+техника" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Краката са на ширината на раменете. Клякай, сякаш сядаш на стол, като държиш гърба изправен и петите залепени за пода.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="glute_bridge" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Глутеус мост - 3x15</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=глутеус+мост+техника" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Легни по гръб със сгънати колене. Повдигай таза нагоре, докато тялото стане в права линия, и стискай седалището.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="plank" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Планк - 3x30-40 сек</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=как+се+прави+планк" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Застани на предмишници. Дръж коремът стегнат и тялото напълно изправено без отпускане на таза.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Четвъртък -->
+        <div id="w-thu" class="day-content w-day">
+            <div class="card">
+                <h3>⚪ Четвъртък: Възстановяване</h3>
+                <div class="item" data-id="walk"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Бързо ходене - 30-40 мин</span></label></div></div>
+                <div class="item" data-id="stretch"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Лек стречинг - 10 мин</span></label></div></div>
+            </div>
+        </div>
+
+        <!-- Петък -->
+        <div id="w-fri" class="day-content w-day">
+            <div class="card">
+                <h3>🔴 Петък: Рамена & Корем</h3>
+                <div class="item" data-id="pike_pushups" data-sets="3" data-rest="90">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Pike Push-ups - 3x8</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=pike+push+ups+техника" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Застани във формата на обърнато "V" с вдигнат таз. Спускай главата плавно към пода, акцентирайки върху раменете.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="lat_raises" data-sets="3" data-rest="60">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Повдигане на бутилки встрани - 3x12</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=повдигане+за+рамо+встрани" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Дръж бутилките с леко сгънати лакти. Повдигай ги встрани до нивото на раменете без засилване с тялото.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="crunches" data-sets="3" data-rest="45">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Коремни преси - 3x15</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=коремни+преси+правилна+форма" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Легни по гръб със свити колене. Повдигай само плешките от пода, като повдигаш горната част на гърба чрез съкращаване на корема.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Събота -->
+        <div id="w-sat" class="day-content w-day">
+            <div class="card">
+                <h3>🔴 Събота: Леко Кардио & Кор</h3>
+                <div class="item" data-id="jumping_jacks" data-sets="3" data-rest="45">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Джампинг Джакс - 3x30 сек</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=jumping+jacks+упражнение" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Подскачай с разтворени крака и ръце над главата в поддържано ритмично темпо.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+                <div class="item" data-id="climbers" data-sets="3" data-rest="45">
+                    <div class="item-main">
+                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Планински катерач - 3x20 сек</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
+                        <div class="btn-group">
+                            <button class="info-btn" onclick="toggleDesc(this)">ℹ️ Инфо</button>
+                            <a href="https://www.youtube.com/results?search_query=планински+катерач+упражнение" target="_blank" class="video-btn">🎥 БГ Видео</a>
+                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
+                        </div>
+                    </div>
+                    <div class="desc-box">Застани в позиция за лицева опора и дърпай коленете последователно към гърдите с бързо темпо.</div>
+                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Неделя -->
+        <div id="w-sun" class="day-content w-day">
+            <div class="card">
+                <h3>⚪ Неделя: Почивка</h3>
+                <div class="item" data-id="rest_day"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Пълна почивка за мускулите</span></label></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. РЕЦЕПТИ И МЕНЮ ПО ДНИ -->
+    <div id="recipes" class="content-section">
+        <div class="days-bar">
+            <button class="day-btn active" onclick="switchDay(event, 'n-mon', 'n-day')">ПОН</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-tue', 'n-day')">ВТО</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-wed', 'n-day')">СРЯ</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-thu', 'n-day')">ЧЕТ</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-fri', 'n-day')">ПЕТ</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-sat', 'n-day')">СЪБ</button>
+            <button class="day-btn" onclick="switchDay(event, 'n-sun', 'n-day')">НЕД</button>
+        </div>
+
+        <div id="n-mon" class="day-content n-day active">
+            <div class="card">
+                <h3>🥗 Понеделник (~2100 kcal)</h3>
+                <div class="item" data-id="n_m1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> 3 яйца + 80g овесени ядки + 1 банан</span></label></div></div>
+                <div class="item" data-id="n_m2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Пилешко филе + 200g Ориз + салата</span></label></div></div>
+                <div class="item" data-id="n_m3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 150g Извара/Скир + 30g сурови бадеми</span></label></div></div>
+                <div class="item" data-id="n_m4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 180g Риба/Свинско филе + 250g Картофи</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-tue" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Вторник (~2100 kcal)</h3>
+                <div class="item" data-id="n_t1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> Омлет от 3 яйца + 2 филии пълнозърнест хляб</span></label></div></div>
+                <div class="item" data-id="n_t2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Телешко/Пилешко + 200g Макарони</span></label></div></div>
+                <div class="item" data-id="n_t3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> Скир / Протеинов шейк + 1 ябълка</span></label></div></div>
+                <div class="item" data-id="n_t4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 180g Скумрия + зелена салата със зехтин</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-wed" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Сряда (~2100 kcal)</h3>
+                <div class="item" data-id="n_w1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> 80g Овес + 1 доза протеин/скир + боровинки</span></label></div></div>
+                <div class="item" data-id="n_w2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Пуешко/Пилешко + 200g Елда или Ориз</span></label></div></div>
+                <div class="item" data-id="n_w3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 2 варени яйца + 1 краставица</span></label></div></div>
+                <div class="item" data-id="n_w4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 200g Извара + краставици и зехтин + 1 филия хляб</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-thu" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Четвъртък (~2100 kcal)</h3>
+                <div class="item" data-id="n_th1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> 3 бъркани яйца + 1 домат + 2 филии хляб</span></label></div></div>
+                <div class="item" data-id="n_th2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Телешка кайма + 250g Варени картофи</span></label></div></div>
+                <div class="item" data-id="n_th3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 150g Кисело мляко 2% + 30g орехи</span></label></div></div>
+                <div class="item" data-id="n_th4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 180g Пилешко филе + печени зеленчуци</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-fri" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Петък (~2100 kcal)</h3>
+                <div class="item" data-id="n_f1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> Протеинови палачинки (2 яйца + 50g овес)</span></label></div></div>
+                <div class="item" data-id="n_f2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Риба тон в собствен сос + 200g Ориз</span></label></div></div>
+                <div class="item" data-id="n_f3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 1 кофичка Скир + 1 банан</span></label></div></div>
+                <div class="item" data-id="n_f4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 180g Свинско бонфиле + голяма салата</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-sat" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Събота (~2100 kcal)</h3>
+                <div class="item" data-id="n_sa1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> 3 яйца на очи + 30g кашкавал + 1 филия хляб</span></label></div></div>
+                <div class="item" data-id="n_sa2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Пилешка пържола + 200g Булгур</span></label></div></div>
+                <div class="item" data-id="n_sa3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 30g Бадеми + 1 ябълка</span></label></div></div>
+                <div class="item" data-id="n_sa4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> 180g Бели рибни филета + микс зеленчуци</span></label></div></div>
+            </div>
+        </div>
+
+        <div id="n-sun" class="day-content n-day">
+            <div class="card">
+                <h3>🥗 Неделя (~2100 kcal)</h3>
+                <div class="item" data-id="n_su1"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Закуска:</b> 80g Овесена каша с мляко, мед и канела</span></label></div></div>
+                <div class="item" data-id="n_su2"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Обяд:</b> 180g Печено телешко + 250g Печени картофи</span></label></div></div>
+                <div class="item" data-id="n_su3"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Следобед:</b> 150g Извара с плодове</span></label></div></div>
+                <div class="item" data-id="n_su4"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span><b>Вечеря:</b> Салата с 150g пилешко филе</span></label></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ВОДА -->
+    <div id="water" class="content-section">
+        <div class="card water-tracker">
+            <h3>💧 Дневен прием на вода</h3>
+            <div class="water-counter" id="water-count">0.0 / 3.0 L</div>
+            <div class="water-grid">
+                <button class="water-btn" onclick="addWater(0.25)"><span>🥛</span>+250ml</button>
+                <button class="water-btn" onclick="addWater(0.50)"><span>💧</span>+500ml</button>
+                <button class="water-btn" onclick="addWater(0.75)"><span>🍼</span>+750ml</button>
+                <button class="water-btn" onclick="resetWater()" style="border-color: var(--accent-color); color: var(--accent-color);"><span>🔄</span>Нулирай</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. БЕЛЕЖКИ -->
+    <div id="notes" class="content-section">
+        <div class="card">
+            <h3>📝 Бележки & Прогрес</h3>
+            <textarea class="notes-area" id="user-notes" placeholder="Запиши тук своите килограми, обиколки или бележки..." oninput="saveNotes()"></textarea>
+        </div>
+    </div>
+
+    <div class="reset-container">
+        <button class="reset-btn" onclick="resetProgress(true)">🔄 Нулирай днешния прогрес</button>
+    </div>
+
+    <script>
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+
+        function switchTab(event, tabId) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function switchDay(event, dayId, dayGroupClass) {
+            const parent = event.currentTarget.parentElement;
+            parent.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.' + dayGroupClass).forEach(el => el.classList.remove('active'));
+            document.getElementById(dayId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function toggleDesc(btn) {
+            const item = btn.closest('.item');
+            const descBox = item.querySelector('.desc-box');
+            descBox.classList.toggle('active');
+        }
+
+        function playVictorySound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.12 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + idx * 0.12);
+                    osc.stop(ctx.currentTime + idx * 0.12 + 0.3);
+                });
+            } catch (e) {}
+        }
+
+        function playSoftBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.6);
+            } catch (e) {}
+        }
+
+        function triggerConfetti() {
+            playVictorySound();
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function sendBackgroundNotification(title, bodyText) {
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, {
+                    body: bodyText,
+                    icon: "https://cdn-icons-png.flaticon.com/512/2964/2964514.png"
+                });
+            }
+        }
+
+        const timerStates = new Map();
+
+        function startExerciseTimer(btn) {
+            requestNotificationPermission();
+            const item = btn.closest('.item');
+            const totalSets = parseInt(item.getAttribute('data-sets')) || 3;
+            const restSeconds = parseInt(item.getAttribute('data-rest')) || 60;
+            const timerBox = item.querySelector('.active-timer-box');
+            const timerText = timerBox.querySelector('.timer-text');
+            const timerClock = timerBox.querySelector('.timer-clock');
+            const progressBar = timerBox.querySelector('.progress-bar-fill');
+            const checkbox = item.querySelector('input[type="checkbox"]');
+
+            let state = timerStates.get(item) || { currentSet: 1, interval: null };
+
+            if (state.interval) clearInterval(state.interval);
+            if (state.currentSet > totalSets) state.currentSet = 1;
+
+            timerBox.classList.add('active');
+            let timeLeft = restSeconds;
+            
+            const updateDisplay = () => {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerClock.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                progressBar.style.width = ((timeLeft / restSeconds) * 100) + '%';
+            };
+
+            timerText.innerText = `Почивка (Серия ${state.currentSet}/${totalSets})...`;
+            updateDisplay();
+
+            state.interval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(state.interval);
+                    state.interval = null;
+                    playSoftBeep();
+
+                    if (state.currentSet < totalSets) {
+                        state.currentSet++;
+                        btn.innerText = `⏱ Серия ${state.currentSet}/${totalSets}`;
+                        timerText.innerText = `Готов за Серия ${state.currentSet}!`;
+                        progressBar.style.width = '100%';
+                        sendBackgroundNotification("Почивката изтече!", `Време е за Серия ${state.currentSet}! 💪`);
+                    } else {
+                        btn.innerText = `✅ Завършено`;
+                        timerText.innerText = `Всички серии са готови!`;
+                        progressBar.style.width = '0%';
+                        checkbox.checked = true;
+                        onItemCheck(checkbox);
+                        sendBackgroundNotification("Упражнението е завършено!", "Отлична работа! 🔥");
+                    }
+                }
+            }, 1000);
+
+            timerStates.set(item, state);
+        }
+
+        let currentWater = 0.0;
+        function addWater(amount) {
+            currentWater += amount;
+            if (currentWater >= 3.0 && (currentWater - amount) < 3.0) {
+                triggerConfetti();
+            } else {
+                playSoftBeep();
+            }
+            updateWaterDisplay();
+            saveWater();
+        }
+        function resetWater() {
+            currentWater = 0.0;
+            updateWaterDisplay();
+            saveWater();
+        }
+        function updateWaterDisplay() {
+            document.getElementById('water-count').innerText = `${currentWater.toFixed(2)} / 3.0 L`;
+        }
+        function saveWater() { localStorage.setItem('fitmax_water', currentWater); }
+        function loadWater() {
+            const saved = localStorage.getItem('fitmax_water');
+            if (saved) { currentWater = parseFloat(saved); updateWaterDisplay(); }
+        }
+
+        function saveNotes() {
+            const val = document.getElementById('user-notes').value;
+            localStorage.setItem('fitmax_notes', val);
+        }
+        function loadNotes() {
+            const saved = localStorage.getItem('fitmax_notes');
+            if (saved) document.getElementById('user-notes').value = saved;
+        }
+
+        function onItemCheck(cb) {
+            const item = cb.closest('.item');
+            if (cb.checked) {
+                item.classList.add('completed');
+                checkDayCompletion(item);
+            } else {
+                item.classList.remove('completed');
+            }
+            saveProgress();
+        }
+
+        function checkDayCompletion(item) {
+            const activeDay = item.closest('.day-content');
+            if (activeDay) {
+                const totalItems = activeDay.querySelectorAll('input[type="checkbox"]');
+                const checkedItems = activeDay.querySelectorAll('input[type="checkbox"]:checked');
+                if (totalItems.length > 0 && totalItems.length === checkedItems.length) {
+                    triggerConfetti();
+                }
+            }
+        }
+
+        function saveProgress() {
+            const checkedState = {};
+            document.querySelectorAll('.item[data-id]').forEach(item => {
+                const id = item.getAttribute('data-id');
+                const cb = item.querySelector('input[type="checkbox"]');
+                if (cb) checkedState[id] = cb.checked;
+            });
+            localStorage.setItem('fitmax_progress', JSON.stringify(checkedState));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('fitmax_progress');
+            if (saved) {
+                const checkedState = JSON.parse(saved);
+                document.querySelectorAll('.item[data-id]').forEach(item => {
+                    const id = item.getAttribute('data-id');
+                    const cb = item.querySelector('input[type="checkbox"]');
+                    if (cb && checkedState[id]) {
+                        cb.checked = true;
+                        item.classList.add('completed');
+                    }
+                });
+            }
+        }
+
+        function resetProgress(confirmUser) {
+            if (confirmUser && !confirm("Сигурни ли сте, че искате да нулирате отметнатите задачи за деня?")) return;
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.item').classList.remove('completed');
+            });
+            saveProgress();
+        }
+
+        window.onload = function() {
+            loadProgress();
+            loadWater();
+            loadNotes();
+        };
+    </script>
+</body>
+</html>
