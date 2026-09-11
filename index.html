@@ -1,1008 +1,111 @@
-<!DOCTYPE html>
-<html lang="bg">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitMax</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #080808;
-            --card-bg: #141414;
-            --card-border: #262626;
-            --accent-color: #ff003c;
-            --text-color: #ffffff;
-            --text-secondary: #a1a1aa;
-            --timer-color: #38bdf8;
-            --video-color: #a855f7;
-        }
+// Пример за секцията с тренировки
+function WorkoutScreen() {
+  return (
+    <div className="workout-container">
+      <h2>Тренировъчна програма</h2>
+      {/* Показване на времетраенето на цялата тренировка */}
+      <div className="workout-duration-badge" style={{ marginBottom: '15px', fontWeight: 'bold', color: '#ff4757' }}>
+        ⏱️ Времетраене на цялата тренировка: 45 минути
+      </div>
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      {/* Директен линк към рийлсове на български */}
+      <div className="video-link-section" style={{ marginBottom: '20px' }}>
+        <a 
+          href="https://www.instagram.com/reels/your_bulgarian_workout_reel_link" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="btn-reel"
+        >
+          🎬 Гледай тренировъчни рийлсове на български
+        </a>
+      </div>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 15px 12px 100px 12px;
-        }
-
-        header { text-align: center; margin-bottom: 15px; }
-        h1 { font-size: 1.8rem; margin: 0 0 4px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        h1 span { color: var(--accent-color); }
-        .subtitle { color: var(--text-secondary); font-size: 0.8rem; margin: 0; }
-
-        .tabs {
-            display: flex;
-            background-color: var(--card-bg);
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--card-border);
-            gap: 4px;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            padding: 10px 4px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
-        }
-
-        .days-bar {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .day-btn {
-            flex: 1;
-            min-width: 45px;
-            background-color: #1a1a1a;
-            border: 1px solid var(--card-border);
-            color: var(--text-secondary);
-            padding: 8px 0;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .day-btn.active {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            background-color: rgba(255, 0, 60, 0.1);
-        }
-
-        .content-section, .day-content { display: none; }
-        .content-section.active, .day-content.active { display: block; }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--card-border);
-        }
-
-        .card h3 {
-            margin: 0 0 12px 0;
-            color: var(--accent-color);
-            font-size: 1.05rem;
-            font-weight: 700;
-        }
-
-        .item {
-            display: flex;
-            flex-direction: column;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .item:last-child { border-bottom: none; }
-
-        .item-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .item-main label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 0.88rem;
-            line-height: 1.4;
-            flex-grow: 1;
-        }
-
-        .item-info { display: flex; flex-direction: column; }
-
-        .rest-time {
-            font-size: 0.75rem;
-            color: var(--timer-color);
-            font-weight: 600;
-            margin-top: 3px;
-        }
-
-        .item.completed .item-main label {
-            text-decoration: line-through;
-            color: var(--text-secondary);
-            opacity: 0.5;
-        }
-
-        input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border: 2px solid var(--card-border);
-            border-radius: 6px;
-            background-color: #0f0f0f;
-            cursor: pointer;
-            display: grid;
-            place-content: center;
-            flex-shrink: 0;
-        }
-
-        input[type="checkbox"]:checked {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        input[type="checkbox"]:checked::before {
-            content: "✓";
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .video-btn {
-            background-color: rgba(168, 85, 247, 0.1);
-            color: var(--video-color);
-            border: 1px solid var(--video-color);
-            padding: 6px 8px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .timer-btn {
-            background-color: rgba(56, 189, 248, 0.1);
-            color: var(--timer-color);
-            border: 1px solid var(--timer-color);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .active-timer-box {
-            display: none;
-            background-color: #0d1520;
-            border: 1px solid var(--timer-color);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-top: 8px;
-        }
-
-        .active-timer-box.active { display: block; }
-
-        .timer-status {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: var(--timer-color);
-            margin-bottom: 4px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 6px;
-            background-color: #1e293b;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background-color: var(--timer-color);
-            width: 100%;
-            transition: width 1s linear;
-        }
-
-        .water-tracker { text-align: center; }
-        .water-counter { font-size: 1.8rem; font-weight: 800; color: var(--timer-color); margin-bottom: 12px; }
-        .water-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .water-btn {
-            background-color: #0f172a;
-            border: 1px solid #0284c7;
-            color: var(--timer-color);
-            padding: 12px 5px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .recipe-box { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); }
-        .recipe-box:last-child { border-bottom: none; }
-        .recipe-title { font-weight: bold; color: #ffffff; margin-bottom: 4px; font-size: 0.95rem; }
-        .recipe-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
-        .recipe-macros { font-size: 0.75rem; color: var(--accent-color); margin-top: 4px; font-weight: 600; }
-
-        .notes-area {
-            width: 100%;
-            height: 250px;
-            background-color: #0f0f0f;
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            color: var(--text-color);
-            padding: 12px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-        }
-
-        .reset-container { text-align: center; margin-top: 30px; }
-        .reset-btn {
-            background-color: rgba(255, 0, 60, 0.1);
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>FIT<span>MAX</span></h1>
-        <p class="subtitle">182cm | 90kg | ПРОГРАМА ЗА НАЧИНАЕЩИ</p>
-    </header>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'workouts')">Тренировки</button>
-        <button class="tab-btn" onclick="switchTab(event, 'recipes')">🥗 Рецепти & Меню</button>
-        <button class="tab-btn" onclick="switchTab(event, 'water')">💧 Вода</button>
-        <button class="tab-btn" onclick="switchTab(event, 'notes')">📝 Бележки</button>
+      {/* Списък с упражнения */}
+      <div className="exercises-list">
+        {/* Упражненията тук... */}
+      </div>
     </div>
+  );import React, { useState } from 'react';
 
-    <!-- 1. ТРЕНИРОВКИ -->
-    <div id="workouts" class="content-section active">
-        <div class="days-bar">
-            <button class="day-btn active" onclick="switchDay(event, 'w-mon', 'w-day')">ПОН</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-tue', 'w-day')">ВТО</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-wed', 'w-day')">СРЯ</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-thu', 'w-day')">ЧЕТ</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-fri', 'w-day')">ПЕТ</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-sat', 'w-day')">СЪБ</button>
-            <button class="day-btn" onclick="switchDay(event, 'w-sun', 'w-day')">НЕД</button>
-        </div>
+function NutritionScreen() {
+  // Състояние за дневните макроси и приетите количества
+  const [targetMacros] = useState({ protein: 150, carbs: 200, fats: 60 });
+  const [consumedMacros, setConsumedMacros] = useState({ protein: 0, carbs: 0, fats: 0 });
 
-        <!-- Понеделник -->
-        <div id="w-mon" class="day-content w-day active">
-            <div class="card">
-                <h3>🔴 Понеделник: Гърди & Трицепс</h3>
-                
-                <div class="item" data-id="pushups" data-sets="3" data-rest="90">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Лицеви опори (или от колене) - 3x8-10</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=лицеви+опори+български+shorts" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
+  // Функция при клик на храна от менюто
+  const handleSelectFood = (foodItem) => {
+    setConsumedMacros(prev => ({
+      protein: prev.protein + foodItem.protein,
+      carbs: prev.carbs + foodItem.carbs,
+      fats: prev.fats + foodItem.fats,
+    }));
+  };
 
-                <div class="item" data-id="incline_pushups" data-sets="3" data-rest="90">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Лицеви с ръце на стол/легло - 3x10</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=лицеви+опори+на+стол+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
+  return (
+    <div className="nutrition-container">
+      <h2>Хранителен дневник</h2>
+      
+      {/* Целеви и приети макроси */}
+      <div className="macros-summary" style={{ background: '#f1f2f6', padding: '10px', borderRadius: '8px' }}>
+        <p><strong>Целеви макроси:</strong> Протеин: {targetMacros.protein}g | Въглехидрати: {targetMacros.carbs}g | Мазнини: {targetMacros.fats}g</p>
+        <p><strong>Приети до момента:</strong> Протеин: {consumedMacros.protein}g | Въглехидрати: {consumedMacros.carbs}g | Мазнини: {consumedMacros.fats}g</p>
+      </div>
 
-                <div class="item" data-id="dips" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Кофички на стол - 3x8</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=кофички+на+стол+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Вторник -->
-        <div id="w-tue" class="day-content w-day">
-            <div class="card">
-                <h3>🔴 Вторник: Гръб & Бицепс</h3>
-                <div class="item" data-id="table_rows" data-sets="3" data-rest="90">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Набирания под маса - 3x8</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=набиране+под+маса+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="superman" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Супермен за гръб - 3x12</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=супермен+упражнение+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="bicep_curls" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Сгъване с раница/бутилки - 3x10</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=бицепс+бутилки+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Сряда -->
-        <div id="w-wed" class="day-content w-day">
-            <div class="card">
-                <h3>🔴 Сряда: Крака & Кор</h3>
-                <div class="item" data-id="squats" data-sets="3" data-rest="90">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Клекове със собствено тегло - 3x12</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=клек+техника+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="glute_bridge" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Глутеус мост - 3x15</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=глутеус+мост+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="plank" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Планк - 3x30-40 сек</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=правилен+планк+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Четвъртък -->
-        <div id="w-thu" class="day-content w-day">
-            <div class="card">
-                <h3>⚪ Четвъртък: Възстановяване</h3>
-                <div class="item" data-id="walk"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Бързо ходене - 30-40 мин</span></label></div></div>
-                <div class="item" data-id="stretch"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Лек стречинг - 10 мин</span></label></div></div>
-            </div>
-        </div>
-
-        <!-- Петък -->
-        <div id="w-fri" class="day-content w-day">
-            <div class="card">
-                <h3>🔴 Петък: Рамена & Корем</h3>
-                <div class="item" data-id="pike_pushups" data-sets="3" data-rest="90">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Pike Push-ups - 3x8</span><span class="rest-time">⏱ 90 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=pike+push+ups+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:30</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="lat_raises" data-sets="3" data-rest="60">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Повдигане на бутилки встрани - 3x12</span><span class="rest-time">⏱ 60 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=повдигане+за+рамо+встрани+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">01:00</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="crunches" data-sets="3" data-rest="45">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Коремни преси - 3x15</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=коремни+преси+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Събота -->
-        <div id="w-sat" class="day-content w-day">
-            <div class="card">
-                <h3>🔴 Събота: Леко Кардио & Кор</h3>
-                <div class="item" data-id="jumping_jacks" data-sets="3" data-rest="45">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Джампинг Джакс - 3x30 сек</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=jumping+jacks+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-                <div class="item" data-id="climbers" data-sets="3" data-rest="45">
-                    <div class="item-main">
-                        <label><input type="checkbox" onchange="onItemCheck(this)"><div class="item-info"><span>Планински катерач - 3x20 сек</span><span class="rest-time">⏱ 45 сек почивка</span></div></label>
-                        <div class="btn-group">
-                            <a href="https://www.youtube.com/results?search_query=планински+катерач+shorts+бг" target="_blank" class="video-btn">🎬 БГ Reels</a>
-                            <button class="timer-btn" onclick="startExerciseTimer(this)">⏱ Серия 1/3</button>
-                        </div>
-                    </div>
-                    <div class="active-timer-box"><div class="timer-status"><span class="timer-text">Почивка...</span><span class="timer-clock">00:45</span></div><div class="progress-bar-bg"><div class="progress-bar-fill"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Неделя -->
-        <div id="w-sun" class="day-content w-day">
-            <div class="card">
-                <h3>⚪ Неделя: Почивка</h3>
-                <div class="item" data-id="rest_day"><div class="item-main"><label><input type="checkbox" onchange="onItemCheck(this)"><span>Пълна почивка за мускулите</span></label></div></div>
-            </div>
-        </div>
+      <h3>Меню (кликнете за добавяне):</h3>
+      <ul>
+        <li onClick={() => handleSelectFood({ protein: 30, carbs: 5, fats: 8 })} style={{ cursor: 'pointer', padding: '5px' }}>
+          🥗 Пилешко с салата (П: 30г, В: 5г, М: 8г)
+        </li>
+        <li onClick={() => handleSelectFood({ protein: 10, carbs: 40, fats: 3 })} style={{ cursor: 'pointer', padding: '5px' }}>
+          🥣 Овесени ядки (П: 10г, В: 40г, М: 3г)
+        </li>
+      </ul>
     </div>
+  );
+}
+function WaterTracker() {
+  const goal = 3.0; // Цел 3 литра
+  const [waterDrank, setWaterDrank] = useState(0);
 
-    <!-- 2. РЕЦЕПТИ И МЕНЮ ПО ДНИ -->
-    <div id="recipes" class="content-section">
-        <div class="days-bar">
-            <button class="day-btn active" onclick="switchDay(event, 'n-mon', 'n-day')">ПОН</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-tue', 'n-day')">ВТО</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-wed', 'n-day')">СРЯ</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-thu', 'n-day')">ЧЕТ</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-fri', 'n-day')">ПЕТ</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-sat', 'n-day')">СЪБ</button>
-            <button class="day-btn" onclick="switchDay(event, 'n-sun', 'n-day')">НЕД</button>
+  const addWater = (amount) => {
+    setWaterDrank(prev => Math.min(prev + amount, goal));
+  };
+
+  const resetWater = () => {
+    setWaterDrank(0);
+  };
+
+  return (
+    <div className="water-tracker-container" style={{ marginTop: '20px', padding: '15px', border: '1px solid #70a1ff', borderRadius: '8px' }}>
+      <h3>Воден тракер</h3>
+      <p>Днешна цел: <strong>{goal} литра</strong></p>
+      
+      {/* Визуално водно поленце */}
+      <div className="water-progress-bar" style={{ background: '#dfe4ea', borderRadius: '10px', overflow: 'hidden', height: '25px', marginBottom: '10px' }}>
+        <div 
+          style={{ 
+            width: `${(waterDrank / goal) * 100}%`, 
+            background: '#1e90ff', 
+            height: '100%', 
+            textAlign: 'center', 
+            color: 'white',
+            lineHeight: '25px',
+            fontSize: '12px',
+            transition: 'width 0.3s ease'
+          }}
+        >
+          {waterDrank.toFixed(3)} л
         </div>
+      </div>
 
-        <!-- Пон -->
-        <div id="n-mon" class="day-content n-day active">
-            <div class="card">
-                <h3>🥗 Понеделник (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🍳 Закуска: Овесена каша с яйца и банан</div>
-                    <div class="recipe-desc">Вариш 80g овесени ядки във вода. Към тях добавяш 1 нарязан банан. Отделно изяждаш 3 варени яйца.</div>
-                    <div class="recipe-macros">~550 kcal | 32g Протеин | 65g Въглехидрати | 18g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍗 Обяд: Пилешко филе с бял ориз и свежа салата</div>
-                    <div class="recipe-desc">180g пилешко филе на тиган или фурна с малко зехтин (5g). Поднесено с 200g сварен ориз и краставици/домати.</div>
-                    <div class="recipe-macros">~600 kcal | 50g Протеин | 60g Въглехидрати | 12g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥛 Следобедна закуска: Скир с бадеми</div>
-                    <div class="recipe-desc">150g Скир или обезмаслена извара, смесена с 30g сурови бадеми.</div>
-                    <div class="recipe-macros">~320 kcal | 25g Протеин | 10g Въглехидрати | 16g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥩 Вечеря: Свинско бонфиле / Риба с печени картофи</div>
-                    <div class="recipe-desc">180g свинско бонфиле или бяла риба, запечена с 250g варени/печени картофи и зелена салата.</div>
-                    <div class="recipe-macros">~630 kcal | 48g Протеин | 50g Въглехидрати | 15g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Вто -->
-        <div id="n-tue" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Вторник (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🍳 Закуска: Омлет с пълнозърнест хляб</div>
-                    <div class="recipe-desc">Омлет от 3 яйца с малко спанак/домат. Сервира се с 2 филии пълнозърнест хляб.</div>
-                    <div class="recipe-macros">~500 kcal | 28g Протеин | 40g Въглехидрати | 20g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍝 Обяд: Телешко / Пилешко с пълнозърнести макарони</div>
-                    <div class="recipe-desc">180g мляно телешко или пилешко със доматен сос, поднесено с 200g сварени макарони.</div>
-                    <div class="recipe-macros">~650 kcal | 48g Протеин | 65g Въглехидрати | 14g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍏 Следобедна закуска: Скир с ябълка</div>
-                    <div class="recipe-desc">200g Скир (или протеинов шейк) с 1 голяма ябълка.</div>
-                    <div class="recipe-macros">~280 kcal | 24g Протеин | 35g Въглехидрати | 2g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🐟 Вечеря: Печена скумрия със салата</div>
-                    <div class="recipe-desc">180g скумрия на скара/фурна, гарнирана с голяма зелена салата с зехтин и лимон.</div>
-                    <div class="recipe-macros">~650 kcal | 42g Протеин | 10g Въглехидрати | 32g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Сря -->
-        <div id="n-wed" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Сряда (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🥣 Закуска: Протеинова овесена каша</div>
-                    <div class="recipe-desc">80g овес, залят с гореща вода и смесен с 1 доза протеин (или 150g скир) и боровинки.</div>
-                    <div class="recipe-macros">~520 kcal | 35g Протеин | 62g Въглехидрати | 8g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍗 Обяд: Пуешко / Пилешко с Елда</div>
-                    <div class="recipe-desc">180g филе с 200g сварена елда и задушени тиквички или броколи.</div>
-                    <div class="recipe-macros">~580 kcal | 52g Протеин | 55g Въглехидрати | 10g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥚 Следобедна закуска: Варени яйца с краставица</div>
-                    <div class="recipe-desc">2 варени яйца с 1 цяла нарязана краставица с малко сол.</div>
-                    <div class="recipe-macros">~180 kcal | 13g Протеин | 4g Въглехидрати | 10g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🧀 Вечеря: Салата с извара и зехтин</div>
-                    <div class="recipe-desc">250g обезмаслена извара, смесена с 10g зехтин, червен пипер, краставици и 1 филия хляб.</div>
-                    <div class="recipe-macros">~550 kcal | 45g Протеин | 25g Въглехидрати | 18g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Чет -->
-        <div id="n-thu" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Четвъртък (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🍳 Закуска: Бъркани яйца с домати</div>
-                    <div class="recipe-desc">3 бъркани яйца с 1 домат, сервирани с 2 филии пълнозърнест хляб.</div>
-                    <div class="recipe-macros">~490 kcal | 26g Протеин | 42g Въглехидрати | 18g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥩 Обяд: Телешки кюфтета на фурна с картофи</div>
-                    <div class="recipe-desc">180g чисто телешко мляно месо (2 кюфтета) с 250g печени картофи.</div>
-                    <div class="recipe-macros">~640 kcal | 46g Протеин | 52g Въглехидрати | 18g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥜 Следобедна закуска: Кисело мляко с орехи</div>
-                    <div class="recipe-desc">200g кисело мляко 2% с 30g натрошени орехи.</div>
-                    <div class="recipe-macros">~310 kcal | 12g Протеин | 10g Въглехидрати | 22g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍗 Вечеря: Пилешко филе с печени зеленчуци</div>
-                    <div class="recipe-desc">180g пилешко с микс от чушки, тиквички и лук на фурна.</div>
-                    <div class="recipe-macros">~480 kcal | 48g Протеин | 20g Въглехидрати | 12g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Пет -->
-        <div id="n-fri" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Петък (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🥞 Закуска: Протеинови овесени палачинки</div>
-                    <div class="recipe-desc">Блендирай 2 яйца + 60g овес + 1/2 банан. Изпечи в незалепващ тиган.</div>
-                    <div class="recipe-macros">~480 kcal | 24g Протеин | 55g Въглехидрати | 14g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🐟 Обяд: Риба тон с ориз и царевица</div>
-                    <div class="recipe-desc">1 консерва риба тон в собствен сос (130g) + 200g сварен ориз + 30g царевица.</div>
-                    <div class="recipe-macros">~560 kcal | 44g Протеин | 60g Въглехидрати | 6g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍌 Следобедна закуска: Скир с банан</div>
-                    <div class="recipe-desc">200g Скир с 1 нарязан банан.</div>
-                    <div class="recipe-macros">~300 kcal | 24g Протеин | 40g Въглехидрати | 1g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥩 Вечеря: Свинска пържола от бут със салата</div>
-                    <div class="recipe-desc">180g свинска пържола без мазнини на скара с шопска салата (без много сирене).</div>
-                    <div class="recipe-macros">~600 kcal | 46g Протеин | 15g Въглехидрати | 25g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Съб -->
-        <div id="n-sat" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Събота (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🍳 Закуска: Яйца на очи с кашкавал</div>
-                    <div class="recipe-desc">3 яйца на очи + 30g затоплен кашкавал + 1 филия хляб.</div>
-                    <div class="recipe-macros">~530 kcal | 30g Протеин | 20g Въглехидрати | 28g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍗 Обяд: Пилешка пържола от бут с Булгур</div>
-                    <div class="recipe-desc">180g пилешко обезкостено бутче на скара с 200g сварен булгур.</div>
-                    <div class="recipe-macros">~620 kcal | 45g Протеин | 50g Въглехидрати | 18g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍎 Следобедна закуска: Бадеми и ябълка</div>
-                    <div class="recipe-desc">30g сурови бадеми + 1 зелена ябълка.</div>
-                    <div class="recipe-macros">~270 kcal | 6g Протеин | 25g Въглехидрати | 15g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🐟 Вечеря: Бели рибни филета с задушени зеленчуци</div>
-                    <div class="recipe-desc">200g хек/хек филе на фурна с моркови, грах и бланширани картофи.</div>
-                    <div class="recipe-macros">~500 kcal | 42g Протеин | 40g Въглехидрати | 10g Мазнини</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Нед -->
-        <div id="n-sun" class="day-content n-day">
-            <div class="card">
-                <h3>🥗 Неделя (Цел: ~2100 kcal)</h3>
-                
-                <div class="recipe-box">
-                    <div class="recipe-title">🥣 Закуска: Сладък овес с мед и канела</div>
-                    <div class="recipe-desc">80g овес, сварен в 200ml прясно мляко, с 1 ч.л. мед и канела. 2 варени яйца отстрани.</div>
-                    <div class="recipe-macros">~560 kcal | 28g Протеин | 70g Въглехидрати | 14g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥩 Обяд: Печено телешко с печени картофи</div>
-                    <div class="recipe-desc">180g крехко телешко шок на фурна с 250g картофи с розмарин.</div>
-                    <div class="recipe-macros">~630 kcal | 48g Протеин | 50g Въглехидрати | 16g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🍓 Следобедна закуска: Извара с ягоди/плод</div>
-                    <div class="recipe-desc">150g извара, пасирана с 100g замразени/пресни ягоди или горски плодове.</div>
-                    <div class="recipe-macros">~200 kcal | 25g Протеин | 15g Въглехидрати | 2g Мазнини</div>
-                </div>
-
-                <div class="recipe-box">
-                    <div class="recipe-title">🥗 Вечеря: Голяма пилешка салата</div>
-                    <div class="recipe-desc">180g запечено пилешко филе върху микс от зелени салати, домати, краставици и 10g зехтин.</div>
-                    <div class="recipe-macros">~490 kcal | 50g Протеин | 12g Въглехидрати | 18g Мазнини</div>
-                </div>
-            </div>
-        </div>
+      <button onClick={() => addWater(0.500)} style={{ marginRight: '10px', padding: '8px 12px' }}>
+        + Добави 0.500 л
+      </button>
+      <button onClick={resetWater} style={{ padding: '8px 12px', background: '#ff4757', color: 'white', border: 'none', borderRadius: '4px' }}>
+        Нулирай
+      </button>
     </div>
+  );
+}
 
-    <!-- 3. ВОДА -->
-    <div id="water" class="content-section">
-        <div class="card water-tracker">
-            <h3>💧 Дневен прием на вода</h3>
-            <div class="water-counter" id="water-count">0.0 / 3.0 L</div>
-            <div class="water-grid">
-                <button class="water-btn" onclick="addWater(0.25)"><span>🥛</span>+250ml</button>
-                <button class="water-btn" onclick="addWater(0.50)"><span>💧</span>+500ml</button>
-                <button class="water-btn" onclick="addWater(0.75)"><span>🍼</span>+750ml</button>
-                <button class="water-btn" onclick="resetWater()" style="border-color: var(--accent-color); color: var(--accent-color);"><span>🔄</span>Нулирай</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. БЕЛЕЖКИ -->
-    <div id="notes" class="content-section">
-        <div class="card">
-            <h3>📝 Бележки & Прогрес</h3>
-            <textarea class="notes-area" id="user-notes" placeholder="Запиши тук своите килограми, обиколки или бележки..." oninput="saveNotes()"></textarea>
-        </div>
-    </div>
-
-    <div class="reset-container">
-        <button class="reset-btn" onclick="resetProgress(true)">🔄 Нулирай днешния прогрес</button>
-    </div>
-
-    <script>
-        function requestNotificationPermission() {
-            if ("Notification" in window && Notification.permission !== "granted") {
-                Notification.requestPermission();
-            }
-        }
-
-        function switchTab(event, tabId) {
-            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function switchDay(event, dayId, dayGroupClass) {
-            const parent = event.currentTarget.parentElement;
-            parent.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.' + dayGroupClass).forEach(el => el.classList.remove('active'));
-            document.getElementById(dayId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function playVictorySound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.12);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.12 + 0.3);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + idx * 0.12);
-                    osc.stop(ctx.currentTime + idx * 0.12 + 0.3);
-                });
-            } catch (e) {}
-        }
-
-        function playSoftBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-                gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.6);
-            } catch (e) {}
-        }
-
-        function triggerConfetti() {
-            playVictorySound();
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-        }
-
-        function sendBackgroundNotification(title, bodyText) {
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(title, {
-                    body: bodyText,
-                    icon: "https://cdn-icons-png.flaticon.com/512/2964/2964514.png"
-                });
-            }
-        }
-
-        const timerStates = new Map();
-
-        function startExerciseTimer(btn) {
-            requestNotificationPermission();
-            const item = btn.closest('.item');
-            const totalSets = parseInt(item.getAttribute('data-sets')) || 3;
-            const restSeconds = parseInt(item.getAttribute('data-rest')) || 60;
-            const timerBox = item.querySelector('.active-timer-box');
-            const timerText = timerBox.querySelector('.timer-text');
-            const timerClock = timerBox.querySelector('.timer-clock');
-            const progressBar = timerBox.querySelector('.progress-bar-fill');
-            const checkbox = item.querySelector('input[type="checkbox"]');
-
-            let state = timerStates.get(item) || { currentSet: 1, interval: null };
-
-            if (state.interval) clearInterval(state.interval);
-            if (state.currentSet > totalSets) state.currentSet = 1;
-
-            timerBox.classList.add('active');
-            let timeLeft = restSeconds;
-            
-            const updateDisplay = () => {
-                const mins = Math.floor(timeLeft / 60);
-                const secs = timeLeft % 60;
-                timerClock.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                progressBar.style.width = ((timeLeft / restSeconds) * 100) + '%';
-            };
-
-            timerText.innerText = `Почивка (Серия ${state.currentSet}/${totalSets})...`;
-            updateDisplay();
-
-            state.interval = setInterval(() => {
-                timeLeft--;
-                updateDisplay();
-
-                if (timeLeft <= 0) {
-                    clearInterval(state.interval);
-                    state.interval = null;
-                    playSoftBeep();
-
-                    if (state.currentSet < totalSets) {
-                        state.currentSet++;
-                        btn.innerText = `⏱ Серия ${state.currentSet}/${totalSets}`;
-                        timerText.innerText = `Готов за Серия ${state.currentSet}!`;
-                        progressBar.style.width = '100%';
-                        sendBackgroundNotification("Почивката изтече!", `Време е за Серия ${state.currentSet}! 💪`);
-                    } else {
-                        btn.innerText = `✅ Завършено`;
-                        timerText.innerText = `Всички серии са готови!`;
-                        progressBar.style.width = '0%';
-                        checkbox.checked = true;
-                        onItemCheck(checkbox);
-                        sendBackgroundNotification("Упражнението е завършено!", "Отлична работа! 🔥");
-                    }
-                }
-            }, 1000);
-
-            timerStates.set(item, state);
-        }
-
-        let currentWater = 0.0;
-        function addWater(amount) {
-            currentWater += amount;
-            if (currentWater >= 3.0 && (currentWater - amount) < 3.0) {
-                triggerConfetti();
-            } else {
-                playSoftBeep();
-            }
-            updateWaterDisplay();
-            saveWater();
-        }
-        function resetWater() {
-            currentWater = 0.0;
-            updateWaterDisplay();
-            saveWater();
-        }
-        function updateWaterDisplay() {
-            document.getElementById('water-count').innerText = `${currentWater.toFixed(2)} / 3.0 L`;
-        }
-        function saveWater() { localStorage.setItem('fitmax_water', currentWater); }
-        function loadWater() {
-            const saved = localStorage.getItem('fitmax_water');
-            if (saved) { currentWater = parseFloat(saved); updateWaterDisplay(); }
-        }
-
-        function saveNotes() {
-            const val = document.getElementById('user-notes').value;
-            localStorage.setItem('fitmax_notes', val);
-        }
-        function loadNotes() {
-            const saved = localStorage.getItem('fitmax_notes');
-            if (saved) document.getElementById('user-notes').value = saved;
-        }
-
-        function onItemCheck(cb) {
-            const item = cb.closest('.item');
-            if (cb.checked) {
-                item.classList.add('completed');
-                checkDayCompletion(item);
-            } else {
-                item.classList.remove('completed');
-            }
-            saveProgress();
-        }
-
-        function checkDayCompletion(item) {
-            const activeDay = item.closest('.day-content');
-            if (activeDay) {
-                const totalItems = activeDay.querySelectorAll('input[type="checkbox"]');
-                const checkedItems = activeDay.querySelectorAll('input[type="checkbox"]:checked');
-                if (totalItems.length > 0 && totalItems.length === checkedItems.length) {
-                    triggerConfetti();
-                }
-            }
-        }
-
-        function saveProgress() {
-            const checkedState = {};
-            document.querySelectorAll('.item[data-id]').forEach(item => {
-                const id = item.getAttribute('data-id');
-                const cb = item.querySelector('input[type="checkbox"]');
-                if (cb) checkedState[id] = cb.checked;
-            });
-            localStorage.setItem('fitmax_progress', JSON.stringify(checkedState));
-        }
-
-        function loadProgress() {
-            const saved = localStorage.getItem('fitmax_progress');
-            if (saved) {
-                const checkedState = JSON.parse(saved);
-                document.querySelectorAll('.item[data-id]').forEach(item => {
-                    const id = item.getAttribute('data-id');
-                    const cb = item.querySelector('input[type="checkbox"]');
-                    if (cb && checkedState[id]) {
-                        cb.checked = true;
-                        item.classList.add('completed');
-                    }
-                });
-            }
-        }
-
-        function resetProgress(confirmUser) {
-            if (confirmUser && !confirm("Сигурни ли сте, че искате да нулирате отметнатите задачи за деня?")) return;
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                cb.checked = false;
-                cb.closest('.item').classList.remove('completed');
-            });
-            saveProgress();
-        }
-
-        window.onload = function() {
-            loadProgress();
-            loadWater();
-            loadNotes();
-        };
-    </script>
-</body>
-</html>
+}
