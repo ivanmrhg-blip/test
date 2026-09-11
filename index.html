@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitMax - Home Workout, Nutrition & Hydration</title>
-    <!-- Пълна библиотека за фойерверки -->
+    <title>FitMax Ultimate Pro - Home Fitness</title>
+    <!-- Пълна библиотека за фойерверки (Confetti) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --bg-main: #0b0f19;
-            --card-bg: #111827;
-            --card-inner: #1f2937;
-            --primary: #f43f5e;
-            --primary-hover: #e11d48;
-            --accent: #38bdf8;
-            --success: #10b981;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --border: #374151;
+            --bg-body: #121214;
+            --container-bg: #1a1a1e;
+            --card-bg: #222228;
+            --card-hover: #2a2a32;
+            --primary: #ff3366;
+            --primary-hover: #e02b55;
+            --accent: #00e5ff;
+            --success: #00e676;
+            --text-main: #ffffff;
+            --text-muted: #a0a0ab;
+            --border: #33333d;
             --radius: 16px;
         }
 
@@ -25,11 +26,11 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-main);
+            background-color: var(--bg-body);
             color: var(--text-main);
             display: flex;
             justify-content: center;
@@ -42,8 +43,8 @@
             max-width: 480px;
             height: 100vh;
             max-height: 920px;
-            background: var(--card-bg);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            background: var(--container-bg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
             border-radius: var(--radius);
@@ -52,13 +53,13 @@
         }
 
         header {
-            background: linear-gradient(135deg, #1f2937, #111827);
+            background: linear-gradient(135deg, #222228, #1a1a1e);
             color: var(--text-main);
-            padding: 18px;
+            padding: 20px;
             text-align: center;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.5px;
             border-bottom: 1px solid var(--border);
             text-transform: uppercase;
         }
@@ -85,13 +86,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Days Navigation Bar */
+        /* Дни от седмицата */
         .days-container {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 18px;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
             scrollbar-width: none;
         }
         .days-container::-webkit-scrollbar {
@@ -99,15 +100,15 @@
         }
 
         .day-btn {
-            background: var(--card-inner);
+            background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text-muted);
-            padding: 9px 14px;
-            border-radius: 10px;
+            padding: 10px 18px;
+            border-radius: 12px;
             cursor: pointer;
             white-space: nowrap;
-            font-weight: 600;
-            font-size: 13px;
+            font-weight: 700;
+            font-size: 14px;
             transition: all 0.25s ease;
         }
 
@@ -115,29 +116,29 @@
             background: var(--primary);
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
         }
 
-        /* Cards & Elements */
+        /* Карти и елементи */
         .card {
-            background: var(--card-inner);
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 18px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         .duration-badge {
-            background: rgba(56, 189, 248, 0.12);
+            background: rgba(0, 229, 255, 0.1);
             color: var(--accent);
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 700;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
             text-align: center;
-            margin-bottom: 14px;
-            font-size: 14px;
-            border: 1px solid rgba(56, 189, 248, 0.25);
+            margin-bottom: 16px;
+            font-size: 15px;
+            border: 1px solid rgba(0, 229, 255, 0.25);
         }
 
         .reel-btn {
@@ -145,13 +146,13 @@
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             color: white;
             text-align: center;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             text-decoration: none;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.35);
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
             transition: opacity 0.2s;
         }
         .reel-btn:hover {
@@ -159,43 +160,53 @@
         }
 
         .exercise-item {
-            background: #111827;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
+            background: var(--bg-body);
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
             border: 1px solid var(--border);
             font-size: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        .exercise-item span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .exercise-item strong {
+            color: var(--accent);
+            background: rgba(0, 229, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
 
-        /* Macros & Progress bars */
+        /* Прогрес бар и макроси */
         .progress-bg {
-            background: var(--bg-main);
-            border-radius: 10px;
-            height: 26px;
+            background: var(--bg-body);
+            border-radius: 12px;
+            height: 28px;
             overflow: hidden;
-            margin: 14px 0;
+            margin: 16px 0;
             border: 1px solid var(--border);
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #38bdf8, #0284c7);
+            background: linear-gradient(90deg, #00e5ff, #00b0ff);
             height: 100%;
             text-align: center;
-            color: white;
+            color: #000;
             font-size: 13px;
-            line-height: 26px;
+            line-height: 28px;
             transition: width 0.4s ease;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .food-item {
-            padding: 12px;
-            background: var(--bg-main);
-            margin: 8px 0;
-            border-radius: 10px;
+            padding: 14px;
+            background: var(--bg-body);
+            margin: 10px 0;
+            border-radius: 12px;
             cursor: pointer;
             border: 1px solid var(--border);
             transition: all 0.2s;
@@ -205,20 +216,20 @@
             align-items: center;
         }
         .food-item:hover {
-            background: #262e3d;
+            background: var(--card-hover);
             border-color: var(--accent);
         }
 
-        /* Interactive Buttons */
+        /* Бутони */
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 11px 16px;
-            border-radius: 10px;
+            padding: 14px 20px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             transition: background 0.2s, transform 0.1s;
         }
         .btn:hover { background: var(--primary-hover); }
@@ -226,24 +237,26 @@
         
         .btn-success {
             background: var(--success);
+            color: #000;
         }
         .btn-success:hover {
-            background: #059669;
+            background: #00c853;
         }
 
         .btn-danger {
-            background: #ef4444;
+            background: #ff1744;
+            color: white;
         }
         .btn-danger:hover {
-            background: #dc2626;
+            background: #d50000;
         }
 
-        /* Bottom Tab Bar */
+        /* Навигационен бар долу */
         .nav-tabs {
             display: flex;
-            background: #111827;
+            background: var(--card-bg);
             justify-content: space-around;
-            padding: 10px 0;
+            padding: 12px 0;
             border-top: 1px solid var(--border);
         }
 
@@ -254,7 +267,7 @@
             font-size: 12px;
             cursor: pointer;
             text-align: center;
-            font-weight: 600;
+            font-weight: 700;
             transition: color 0.2s;
         }
 
@@ -264,12 +277,12 @@
 
         textarea {
             width: 100%;
-            height: 130px;
-            background: var(--bg-main);
+            height: 150px;
+            background: var(--bg-body);
             color: var(--text-main);
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid var(--border);
-            padding: 12px;
+            padding: 14px;
             box-sizing: border-box;
             resize: none;
             font-family: inherit;
@@ -281,14 +294,16 @@
         }
 
         h2, h3, h4 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: var(--text-main);
+            font-weight: 800;
         }
         
         p {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--text-muted);
             font-size: 14px;
+            line-height: 1.5;
         }
         p strong {
             color: var(--text-main);
@@ -328,7 +343,7 @@
                     <div class="exercise-item"><span>2. Лицеви опори</span> <strong>4 × 12</strong></div>
                     <div class="exercise-item"><span>3. Напади на място</span> <strong>3 × 10</strong></div>
                 </div>
-                <button class="btn btn-success" onclick="triggerConfetti()" style="width: 100%; margin-top: 15px;">🎉 Завърши тренировката</button>
+                <button class="btn btn-success" onclick="triggerConfetti()" style="width: 100%; margin-top: 18px;">🎉 Завърши тренировката</button>
             </div>
         </div>
 
@@ -339,13 +354,13 @@
                 <p><strong>Целеви макроси:</strong> П: <span id="t-p">150</span>г | В: <span id="t-c">200</span>г | М: <span id="t-f">60</span>г</p>
                 <p><strong>Приети до момента:</strong> П: <span id="c-p">0</span>г | В: <span id="c-c">0</span>г | М: <span id="c-f">0</span>г</p>
                 
-                <h4 style="margin-top: 12px; color: var(--accent);">Меню (кликни за добавяне):</h4>
+                <h4 style="margin-top: 14px; color: var(--accent);">Меню (кликни за добавяне):</h4>
                 <div class="food-item" onclick="addFood(30, 5, 8)"><span>🍗 Пилешко филе с гарнитура</span> <strong>+П:30 В:5 М:8</strong></div>
                 <div class="food-item" onclick="addFood(10, 45, 3)"><span>🥣 Овесена каша с плодове</span> <strong>+П:10 В:45 М:3</strong></div>
                 <div class="food-item" onclick="addFood(24, 2, 12)"><span>🥚 Омлет от 3 яйца</span> <strong>+П:24 В:2 М:12</strong></div>
                 <div class="food-item" onclick="addFood(25, 40, 6)"><span>🐟 Риба тон с ориз</span> <strong>+П:25 В:40 М:6</strong></div>
                 
-                <button class="btn btn-danger" onclick="resetMacros()" style="width: 100%; margin-top: 15px;">Нулирай храненето</button>
+                <button class="btn btn-danger" onclick="resetMacros()" style="width: 100%; margin-top: 18px;">Нулирай храненето</button>
             </div>
         </div>
 
@@ -357,7 +372,7 @@
                 <div class="progress-bg">
                     <div id="water-bar" class="progress-fill" style="width: 0%;">0.000 л</div>
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style="display: flex; gap: 12px; margin-top: 18px;">
                     <button class="btn btn-success" onclick="addWater(0.500)" style="flex: 1;">+ 0.500 л вода</button>
                     <button class="btn btn-danger" onclick="resetWater()">Нулирай</button>
                 </div>
@@ -370,7 +385,7 @@
             <div class="card">
                 <p>📝 Запишете вашите любими рецепти или бележки за тренировките тук:</p>
                 <textarea id="user-notes" placeholder="Въведете текст..."></textarea>
-                <button class="btn btn-success" onclick="saveNotes()" style="width: 100%; margin-top: 15px;">Запази бележката</button>
+                <button class="btn btn-success" onclick="saveNotes()" style="width: 100%; margin-top: 18px;">Запази бележката</button>
             </div>
         </div>
     </div>
@@ -385,11 +400,11 @@
 </div>
 
 <script>
-    // Ефект с фойерверки
+    // Масивна функция за фойерверки (Confetti)
     function triggerConfetti() {
         confetti({
-            particleCount: 150,
-            spread: 90,
+            particleCount: 200,
+            spread: 120,
             origin: { y: 0.6 }
         });
     }
@@ -402,7 +417,7 @@
         btn.classList.add('active');
     }
 
-    // Програма по дни на седмицата
+    // Пълна програма по дни на седмицата
     function selectDay(day, btn) {
         document.querySelectorAll('.day-btn').forEach(el => el.classList.remove('active'));
         btn.classList.add('active');
@@ -425,7 +440,7 @@
                 <div class="exercise-item"><span>3. Раменни преси с дъмбели</span> <strong>3 × 12</strong></div>`;
         } else if(day === 'thu') {
             list.innerHTML = `
-                <div class="exercise-item"><span>1. Български клек</span> <strong>3 × 10 (на крак)</strong></div>
+                <div class="exercise-item"><span>1. Български клек</span> <strong>3 × 10</strong></div>
                 <div class="exercise-item"><span>2. Мост за дупе (Hip Thrust)</span> <strong>4 × 15</strong></div>
                 <div class="exercise-item"><span>3. Клекове с отскок</span> <strong>3 × 12</strong></div>`;
         } else if(day === 'fri') {
