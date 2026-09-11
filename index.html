@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitMax - Home Workout & Nutrition</title>
-    <!-- Включваме библиотека за фойерверки (confetti) -->
+    <title>FitMax - Home Workout, Nutrition & Hydration</title>
+    <!-- Пълна библиотека за фойерверки -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --primary: #ff4757;
-            --primary-hover: #ff6b81;
-            --bg-color: #f7f9fc;
-            --card-bg: #ffffff;
-            --text-main: #2f3542;
-            --text-muted: #747d8c;
-            --border: #dfe4ea;
-            --radius: 12px;
+            --bg-main: #0b0f19;
+            --card-bg: #111827;
+            --card-inner: #1f2937;
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,175 +41,221 @@
             width: 100%;
             max-width: 480px;
             height: 100vh;
-            max-height: 900px;
+            max-height: 920px;
             background: var(--card-bg);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
             border-radius: var(--radius);
             overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         header {
-            background: var(--text-main);
-            color: white;
-            padding: 15px;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: var(--text-main);
+            padding: 18px;
             text-align: center;
             font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 1px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
         }
 
         .content {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        /* Days Navigation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Days Navigation Bar */
         .days-container {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+            scrollbar-width: none;
+        }
+        .days-container::-webkit-scrollbar {
+            display: none;
         }
 
         .day-btn {
-            background: var(--bg-color);
+            background: var(--card-inner);
             border: 1px solid var(--border);
-            padding: 8px 14px;
-            border-radius: 8px;
+            color: var(--text-muted);
+            padding: 9px 14px;
+            border-radius: 10px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 600;
-            color: var(--text-muted);
-            transition: all 0.2s;
+            font-size: 13px;
+            transition: all 0.25s ease;
         }
 
         .day-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
         }
 
         /* Cards & Elements */
         .card {
-            background: var(--card-bg);
+            background: var(--card-inner);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
         .duration-badge {
-            background: #e0f7fa;
-            color: #00796b;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent);
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 12px;
-            font-size: 15px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
         }
 
         .reel-btn {
             display: block;
-            background: #e1306c;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             color: white;
             text-align: center;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
             font-size: 14px;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.35);
+            transition: opacity 0.2s;
+        }
+        .reel-btn:hover {
+            opacity: 0.9;
         }
 
         .exercise-item {
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .exercise-item:last-child {
-            border-bottom: none;
+            background: #111827;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Water & Macros Interactive */
+        /* Macros & Progress bars */
         .progress-bg {
-            background: var(--border);
+            background: var(--bg-main);
             border-radius: 10px;
-            height: 25px;
+            height: 26px;
             overflow: hidden;
-            margin: 10px 0;
+            margin: 14px 0;
+            border: 1px solid var(--border);
         }
 
         .progress-fill {
-            background: #1e90ff;
+            background: linear-gradient(90deg, #38bdf8, #0284c7);
             height: 100%;
             text-align: center;
             color: white;
             font-size: 13px;
-            line-height: 25px;
-            transition: width 0.3s ease;
-            font-weight: bold;
+            line-height: 26px;
+            transition: width 0.4s ease;
+            font-weight: 700;
         }
 
         .food-item {
-            padding: 10px;
-            background: var(--bg-color);
-            margin: 6px 0;
-            border-radius: 8px;
+            padding: 12px;
+            background: var(--bg-main);
+            margin: 8px 0;
+            border-radius: 10px;
             cursor: pointer;
             border: 1px solid var(--border);
-            transition: 0.2s;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .food-item:hover {
-            background: #e4e7eb;
+            background: #262e3d;
+            border-color: var(--accent);
         }
 
+        /* Interactive Buttons */
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 11px 16px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: bold;
-            margin-right: 5px;
-            margin-top: 5px;
+            font-weight: 700;
+            transition: background 0.2s, transform 0.1s;
         }
         .btn:hover { background: var(--primary-hover); }
+        .btn:active { transform: scale(0.98); }
         
-        .btn-secondary {
-            background: #2ed573;
+        .btn-success {
+            background: var(--success);
+        }
+        .btn-success:hover {
+            background: #059669;
         }
 
-        /* Bottom Nav */
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Bottom Tab Bar */
         .nav-tabs {
             display: flex;
-            background: var(--text-main);
+            background: #111827;
             justify-content: space-around;
             padding: 10px 0;
+            border-top: 1px solid var(--border);
         }
 
         .tab-btn {
             background: none;
             border: none;
-            color: #a4b0be;
+            color: var(--text-muted);
             font-size: 12px;
             cursor: pointer;
             text-align: center;
             font-weight: 600;
+            transition: color 0.2s;
         }
 
         .tab-btn.active {
@@ -211,13 +264,34 @@
 
         textarea {
             width: 100%;
-            height: 120px;
-            border-radius: 8px;
+            height: 130px;
+            background: var(--bg-main);
+            color: var(--text-main);
+            border-radius: 10px;
             border: 1px solid var(--border);
-            padding: 10px;
+            padding: 12px;
             box-sizing: border-box;
             resize: none;
             font-family: inherit;
+            font-size: 14px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        h2, h3, h4 {
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+        
+        p {
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        p strong {
+            color: var(--text-main);
         }
     </style>
 </head>
@@ -248,13 +322,13 @@
                 <!-- Директни рилсове на български -->
                 <a href="https://www.instagram.com/explore/tags/фитнесбългария/" target="_blank" class="reel-btn">🎬 Гледай упражнения с техника (Reels)</a>
 
-                <h3>Упражнения:</h3>
+                <h3>Упражнения за деня:</h3>
                 <div id="exercises-list">
-                    <div class="exercise-item"><strong>1. Клекове със собствено тегло:</strong> 4 серии x 15 повторения</div>
-                    <div class="exercise-item"><strong>2. Лицеви опори:</strong> 4 серии x 12 повторения</div>
-                    <div class="exercise-item"><strong>3. Напади:</strong> 3 серии x 10 повторения (на крак)</div>
+                    <div class="exercise-item"><span>1. Клекове със собствено тегло</span> <strong>4 × 15</strong></div>
+                    <div class="exercise-item"><span>2. Лицеви опори</span> <strong>4 × 12</strong></div>
+                    <div class="exercise-item"><span>3. Напади на място</span> <strong>3 × 10</strong></div>
                 </div>
-                <button class="btn btn-secondary" onclick="triggerConfetti()" style="margin-top: 12px;">✅ Завърши тренировката</button>
+                <button class="btn btn-success" onclick="triggerConfetti()" style="width: 100%; margin-top: 15px;">🎉 Завърши тренировката</button>
             </div>
         </div>
 
@@ -265,13 +339,13 @@
                 <p><strong>Целеви макроси:</strong> П: <span id="t-p">150</span>г | В: <span id="t-c">200</span>г | М: <span id="t-f">60</span>г</p>
                 <p><strong>Приети до момента:</strong> П: <span id="c-p">0</span>г | В: <span id="c-c">0</span>г | М: <span id="c-f">0</span>г</p>
                 
-                <h4 style="margin-bottom: 5px;">Меню (кликни за добавяне):</h4>
-                <div class="food-item" onclick="addFood(30, 5, 8)">🍗 Пилешко филе с гарнитура (П: 30г, В: 5г, М: 8г)</div>
-                <div class="food-item" onclick="addFood(10, 45, 3)">🥣 Овесена каша с плодове (П: 10г, В: 45г, М: 3г)</div>
-                <div class="food-item" onclick="addFood(24, 2, 12)">🥚 Омлет от 3 яйца (П: 24г, В: 2г, М: 12г)</div>
-                <div class="food-item" onclick="addFood(25, 40, 6)">🐟 Риба тон с ориз (П: 25г, В: 40г, М: 6г)</div>
+                <h4 style="margin-top: 12px; color: var(--accent);">Меню (кликни за добавяне):</h4>
+                <div class="food-item" onclick="addFood(30, 5, 8)"><span>🍗 Пилешко филе с гарнитура</span> <strong>+П:30 В:5 М:8</strong></div>
+                <div class="food-item" onclick="addFood(10, 45, 3)"><span>🥣 Овесена каша с плодове</span> <strong>+П:10 В:45 М:3</strong></div>
+                <div class="food-item" onclick="addFood(24, 2, 12)"><span>🥚 Омлет от 3 яйца</span> <strong>+П:24 В:2 М:12</strong></div>
+                <div class="food-item" onclick="addFood(25, 40, 6)"><span>🐟 Риба тон с ориз</span> <strong>+П:25 В:40 М:6</strong></div>
                 
-                <button class="btn" onclick="resetMacros()" style="background: #ff4757; margin-top: 10px;">Нулирай храненето</button>
+                <button class="btn btn-danger" onclick="resetMacros()" style="width: 100%; margin-top: 15px;">Нулирай храненето</button>
             </div>
         </div>
 
@@ -283,8 +357,10 @@
                 <div class="progress-bg">
                     <div id="water-bar" class="progress-fill" style="width: 0%;">0.000 л</div>
                 </div>
-                <button class="btn btn-secondary" onclick="addWater(0.500)">+ Добави 0.500 л</button>
-                <button class="btn" onclick="resetWater()" style="background: #ff4757;">Нулирай водата</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-success" onclick="addWater(0.500)" style="flex: 1;">+ 0.500 л вода</button>
+                    <button class="btn btn-danger" onclick="resetWater()">Нулирай</button>
+                </div>
             </div>
         </div>
 
@@ -294,12 +370,12 @@
             <div class="card">
                 <p>📝 Запишете вашите любими рецепти или бележки за тренировките тук:</p>
                 <textarea id="user-notes" placeholder="Въведете текст..."></textarea>
-                <button class="btn btn-secondary" onclick="saveNotes()" style="margin-top: 10px;">Запази бележката</button>
+                <button class="btn btn-success" onclick="saveNotes()" style="width: 100%; margin-top: 15px;">Запази бележката</button>
             </div>
         </div>
     </div>
 
-    <!-- Навигационен бар -->
+    <!-- Навигационен бар долу -->
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="switchTab('workout-tab', this)">🏋️ Тренировки</button>
         <button class="tab-btn" onclick="switchTab('nutrition-tab', this)">🥗 Хранене</button>
@@ -309,16 +385,16 @@
 </div>
 
 <script>
-    // Функция за фойерверки (Confetti)
+    // Ефект с фойерверки
     function triggerConfetti() {
         confetti({
-            particleCount: 120,
-            spread: 80,
+            particleCount: 150,
+            spread: 90,
             origin: { y: 0.6 }
         });
     }
 
-    // Табове логика
+    // Превключване на табове
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -326,7 +402,7 @@
         btn.classList.add('active');
     }
 
-    // Дни от седмицата логика
+    // Програма по дни на седмицата
     function selectDay(day, btn) {
         document.querySelectorAll('.day-btn').forEach(el => el.classList.remove('active'));
         btn.classList.add('active');
@@ -334,27 +410,37 @@
         let list = document.getElementById('exercises-list');
         if(day === 'mon') {
             list.innerHTML = `
-                <div class="exercise-item"><strong>1. Клекове със собствено тегло:</strong> 4 серии x 15 повторения</div>
-                <div class="exercise-item"><strong>2. Лицеви опори:</strong> 4 серии x 12 повторения</div>
-                <div class="exercise-item"><strong>3. Напади:</strong> 3 серии x 10 повторения (на крак)</div>`;
+                <div class="exercise-item"><span>1. Клекове със собствено тегло</span> <strong>4 × 15</strong></div>
+                <div class="exercise-item"><span>2. Лицеви опори</span> <strong>4 × 12</strong></div>
+                <div class="exercise-item"><span>3. Напади на място</span> <strong>3 × 10</strong></div>`;
         } else if(day === 'tue') {
             list.innerHTML = `
-                <div class="exercise-item"><strong>1. Планк:</strong> 3 серии x 45 секунди</div>
-                <div class="exercise-item"><strong>2. Коремни преси:</strong> 4 серии x 20 повторения</div>
-                <div class="exercise-item"><strong>3. Повдигане на крака:</strong> 3 серии x 15 повторения</div>`;
+                <div class="exercise-item"><span>1. Планк</span> <strong>3 × 45 сек</strong></div>
+                <div class="exercise-item"><span>2. Коремни преси</span> <strong>4 × 20</strong></div>
+                <div class="exercise-item"><span>3. Повдигане на крака от лег</span> <strong>3 × 15</strong></div>`;
         } else if(day === 'wed') {
             list.innerHTML = `
-                <div class="exercise-item"><strong>1. Лицеви опори с широк хват:</strong> 3 серии x 12 повторения</div>
-                <div class="exercise-item"><strong>2. Кофички на стол:</strong> 3 серии x 10 повторения</div>
-                <div class="exercise-item"><strong>3. Раменни преси с дъмбели/бутилки:</strong> 3 серии x 12 повторения</div>`;
+                <div class="exercise-item"><span>1. Лицеви опори с широк хват</span> <strong>3 × 12</strong></div>
+                <div class="exercise-item"><span>2. Кофички на стол</span> <strong>3 × 10</strong></div>
+                <div class="exercise-item"><span>3. Раменни преси с дъмбели</span> <strong>3 × 12</strong></div>`;
+        } else if(day === 'thu') {
+            list.innerHTML = `
+                <div class="exercise-item"><span>1. Български клек</span> <strong>3 × 10 (на крак)</strong></div>
+                <div class="exercise-item"><span>2. Мост за дупе (Hip Thrust)</span> <strong>4 × 15</strong></div>
+                <div class="exercise-item"><span>3. Клекове с отскок</span> <strong>3 × 12</strong></div>`;
+        } else if(day === 'fri') {
+            list.innerHTML = `
+                <div class="exercise-item"><span>1. Лицеви опори с диамантен хват</span> <strong>3 × 10</strong></div>
+                <div class="exercise-item"><span>2. Кофички за трицепс</span> <strong>3 × 12</strong></div>
+                <div class="exercise-item"><span>3. Коремни преси "Колело"</span> <strong>3 × 20</strong></div>`;
         } else {
             list.innerHTML = `
-                <div class="exercise-item"><strong>1. Цялостно раздвижване и кардио:</strong> 30 минути</div>
-                <div class="exercise-item"><strong>2. Стречънг и разтягане:</strong> 15 минути</div>`;
+                <div class="exercise-item"><span>1. Цялостно кардио и раздвижване</span> <strong>30 мин</strong></div>
+                <div class="exercise-item"><span>2. Стречънг и гъвкавост</span> <strong>15 мин</strong></div>`;
         }
     }
 
-    // Макроси логика
+    // Логика за макросите
     let consumed = { p: 0, c: 0, f: 0 };
     function addFood(p, c, f) {
         consumed.p += p;
@@ -364,7 +450,6 @@
         document.getElementById('c-c').innerText = consumed.c;
         document.getElementById('c-f').innerText = consumed.f;
         
-        // Ако наближи или надхвърли целите, пускаме фойерверки
         if (consumed.p >= 150) {
             triggerConfetti();
         }
@@ -376,14 +461,13 @@
         document.getElementById('c-f').innerText = 0;
     }
 
-    // Воден тракер логика с фойерверки при изпълнение на целта
+    // Логика за водния тракер
     let waterDrank = 0;
     const waterGoal = 3.0;
     function addWater(amount) {
         waterDrank = Math.min(waterDrank + amount, waterGoal);
         updateWaterUI();
         
-        // Фойерверки при достигане на 3 литра вода
         if (waterDrank >= waterGoal) {
             triggerConfetti();
         }
@@ -399,7 +483,7 @@
         bar.innerText = waterDrank.toFixed(3) + ' л';
     }
 
-    // Бележки и localStorage
+    // Логика за бележките с localStorage
     function saveNotes() {
         let text = document.getElementById('user-notes').value;
         localStorage.setItem('fitmax_user_notes', text);
