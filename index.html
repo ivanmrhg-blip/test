@@ -1,111 +1,417 @@
-// Пример за секцията с тренировки
-function WorkoutScreen() {
-  return (
-    <div className="workout-container">
-      <h2>Тренировъчна програма</h2>
-      {/* Показване на времетраенето на цялата тренировка */}
-      <div className="workout-duration-badge" style={{ marginBottom: '15px', fontWeight: 'bold', color: '#ff4757' }}>
-        ⏱️ Времетраене на цялата тренировка: 45 минути
-      </div>
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitMax - Home Workout & Nutrition</title>
+    <!-- Включваме библиотека за фойерверки (confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-hover: #ff6b81;
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-main: #2f3542;
+            --text-muted: #747d8c;
+            --border: #dfe4ea;
+            --radius: 12px;
+        }
 
-      {/* Директен линк към рийлсове на български */}
-      <div className="video-link-section" style={{ marginBottom: '20px' }}>
-        <a 
-          href="https://www.instagram.com/reels/your_bulgarian_workout_reel_link" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="btn-reel"
-        >
-          🎬 Гледай тренировъчни рийлсове на български
-        </a>
-      </div>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-      {/* Списък с упражнения */}
-      <div className="exercises-list">
-        {/* Упражненията тук... */}
-      </div>
-    </div>
-  );import React, { useState } from 'react';
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            background: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
 
-function NutritionScreen() {
-  // Състояние за дневните макроси и приетите количества
-  const [targetMacros] = useState({ protein: 150, carbs: 200, fats: 60 });
-  const [consumedMacros, setConsumedMacros] = useState({ protein: 0, carbs: 0, fats: 0 });
+        header {
+            background: var(--text-main);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
 
-  // Функция при клик на храна от менюто
-  const handleSelectFood = (foodItem) => {
-    setConsumedMacros(prev => ({
-      protein: prev.protein + foodItem.protein,
-      carbs: prev.carbs + foodItem.carbs,
-      fats: prev.fats + foodItem.fats,
-    }));
-  };
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
 
-  return (
-    <div className="nutrition-container">
-      <h2>Хранителен дневник</h2>
-      
-      {/* Целеви и приети макроси */}
-      <div className="macros-summary" style={{ background: '#f1f2f6', padding: '10px', borderRadius: '8px' }}>
-        <p><strong>Целеви макроси:</strong> Протеин: {targetMacros.protein}g | Въглехидрати: {targetMacros.carbs}g | Мазнини: {targetMacros.fats}g</p>
-        <p><strong>Приети до момента:</strong> Протеин: {consumedMacros.protein}g | Въглехидрати: {consumedMacros.carbs}g | Мазнини: {consumedMacros.fats}g</p>
-      </div>
+        .tab-content {
+            display: none;
+        }
 
-      <h3>Меню (кликнете за добавяне):</h3>
-      <ul>
-        <li onClick={() => handleSelectFood({ protein: 30, carbs: 5, fats: 8 })} style={{ cursor: 'pointer', padding: '5px' }}>
-          🥗 Пилешко с салата (П: 30г, В: 5г, М: 8г)
-        </li>
-        <li onClick={() => handleSelectFood({ protein: 10, carbs: 40, fats: 3 })} style={{ cursor: 'pointer', padding: '5px' }}>
-          🥣 Овесени ядки (П: 10г, В: 40г, М: 3г)
-        </li>
-      </ul>
-    </div>
-  );
-}
-function WaterTracker() {
-  const goal = 3.0; // Цел 3 литра
-  const [waterDrank, setWaterDrank] = useState(0);
+        .tab-content.active {
+            display: block;
+        }
 
-  const addWater = (amount) => {
-    setWaterDrank(prev => Math.min(prev + amount, goal));
-  };
+        /* Days Navigation */
+        .days-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
 
-  const resetWater = () => {
-    setWaterDrank(0);
-  };
+        .day-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
 
-  return (
-    <div className="water-tracker-container" style={{ marginTop: '20px', padding: '15px', border: '1px solid #70a1ff', borderRadius: '8px' }}>
-      <h3>Воден тракер</h3>
-      <p>Днешна цел: <strong>{goal} литра</strong></p>
-      
-      {/* Визуално водно поленце */}
-      <div className="water-progress-bar" style={{ background: '#dfe4ea', borderRadius: '10px', overflow: 'hidden', height: '25px', marginBottom: '10px' }}>
-        <div 
-          style={{ 
-            width: `${(waterDrank / goal) * 100}%`, 
-            background: '#1e90ff', 
-            height: '100%', 
-            textAlign: 'center', 
-            color: 'white',
-            lineHeight: '25px',
-            fontSize: '12px',
-            transition: 'width 0.3s ease'
-          }}
-        >
-          {waterDrank.toFixed(3)} л
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Cards & Elements */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .duration-badge {
+            background: #e0f7fa;
+            color: #00796b;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .reel-btn {
+            display: block;
+            background: #e1306c;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .exercise-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .exercise-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Water & Macros Interactive */
+        .progress-bg {
+            background: var(--border);
+            border-radius: 10px;
+            height: 25px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: #1e90ff;
+            height: 100%;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            line-height: 25px;
+            transition: width 0.3s ease;
+            font-weight: bold;
+        }
+
+        .food-item {
+            padding: 10px;
+            background: var(--bg-color);
+            margin: 6px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .food-item:hover {
+            background: #e4e7eb;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        
+        .btn-secondary {
+            background: #2ed573;
+        }
+
+        /* Bottom Nav */
+        .nav-tabs {
+            display: flex;
+            background: var(--text-main);
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #a4b0be;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>FitMax - Home Fitness</header>
+
+    <div class="content">
+        <!-- ТАБ 1: ТРЕНИРОВКИ -->
+        <div id="workout-tab" class="tab-content active">
+            <h2>Тренировъчна програма</h2>
+            
+            <div class="days-container">
+                <button class="day-btn active" onclick="selectDay('mon', this)">Понеделник</button>
+                <button class="day-btn" onclick="selectDay('tue', this)">Вторник</button>
+                <button class="day-btn" onclick="selectDay('wed', this)">Сряда</button>
+                <button class="day-btn" onclick="selectDay('thu', this)">Четвъртък</button>
+                <button class="day-btn" onclick="selectDay('fri', this)">Петък</button>
+                <button class="day-btn" onclick="selectDay('sat', this)">Събота</button>
+                <button class="day-btn" onclick="selectDay('sun', this)">Неделя</button>
+            </div>
+
+            <div class="card">
+                <!-- Времетраене на тренировката -->
+                <div class="duration-badge">⏱️ Времетраене на цялата тренировка: 55 минути</div>
+                
+                <!-- Директни рилсове на български -->
+                <a href="https://www.instagram.com/explore/tags/фитнесбългария/" target="_blank" class="reel-btn">🎬 Гледай упражнения с техника (Reels)</a>
+
+                <h3>Упражнения:</h3>
+                <div id="exercises-list">
+                    <div class="exercise-item"><strong>1. Клекове със собствено тегло:</strong> 4 серии x 15 повторения</div>
+                    <div class="exercise-item"><strong>2. Лицеви опори:</strong> 4 серии x 12 повторения</div>
+                    <div class="exercise-item"><strong>3. Напади:</strong> 3 серии x 10 повторения (на крак)</div>
+                </div>
+                <button class="btn btn-secondary" onclick="triggerConfetti()" style="margin-top: 12px;">✅ Завърши тренировката</button>
+            </div>
         </div>
-      </div>
 
-      <button onClick={() => addWater(0.500)} style={{ marginRight: '10px', padding: '8px 12px' }}>
-        + Добави 0.500 л
-      </button>
-      <button onClick={resetWater} style={{ padding: '8px 12px', background: '#ff4757', color: 'white', border: 'none', borderRadius: '4px' }}>
-        Нулирай
-      </button>
+        <!-- ТАБ 2: ХРАНЕНЕ И МАКРОСИ -->
+        <div id="nutrition-tab" class="tab-content">
+            <h2>Хранене (Цел: 2100 kcal)</h2>
+            <div class="card">
+                <p><strong>Целеви макроси:</strong> П: <span id="t-p">150</span>г | В: <span id="t-c">200</span>г | М: <span id="t-f">60</span>г</p>
+                <p><strong>Приети до момента:</strong> П: <span id="c-p">0</span>г | В: <span id="c-c">0</span>г | М: <span id="c-f">0</span>г</p>
+                
+                <h4 style="margin-bottom: 5px;">Меню (кликни за добавяне):</h4>
+                <div class="food-item" onclick="addFood(30, 5, 8)">🍗 Пилешко филе с гарнитура (П: 30г, В: 5г, М: 8г)</div>
+                <div class="food-item" onclick="addFood(10, 45, 3)">🥣 Овесена каша с плодове (П: 10г, В: 45г, М: 3г)</div>
+                <div class="food-item" onclick="addFood(24, 2, 12)">🥚 Омлет от 3 яйца (П: 24г, В: 2г, М: 12г)</div>
+                <div class="food-item" onclick="addFood(25, 40, 6)">🐟 Риба тон с ориз (П: 25г, В: 40г, М: 6г)</div>
+                
+                <button class="btn" onclick="resetMacros()" style="background: #ff4757; margin-top: 10px;">Нулирай храненето</button>
+            </div>
+        </div>
+
+        <!-- ТАБ 3: ВОДЕН ТРАКЕР -->
+        <div id="water-tab" class="tab-content">
+            <h2>Воден Тракер</h2>
+            <div class="card">
+                <p>Дневна цел: <strong>3.0 литра</strong></p>
+                <div class="progress-bg">
+                    <div id="water-bar" class="progress-fill" style="width: 0%;">0.000 л</div>
+                </div>
+                <button class="btn btn-secondary" onclick="addWater(0.500)">+ Добави 0.500 л</button>
+                <button class="btn" onclick="resetWater()" style="background: #ff4757;">Нулирай водата</button>
+            </div>
+        </div>
+
+        <!-- ТАБ 4: РЕЦЕПТИ И БЕЛЕЖКИ -->
+        <div id="recipes-tab" class="tab-content">
+            <h2>Рецепти и Бележки</h2>
+            <div class="card">
+                <p>📝 Запишете вашите любими рецепти или бележки за тренировките тук:</p>
+                <textarea id="user-notes" placeholder="Въведете текст..."></textarea>
+                <button class="btn btn-secondary" onclick="saveNotes()" style="margin-top: 10px;">Запази бележката</button>
+            </div>
+        </div>
     </div>
-  );
-}
 
-}
+    <!-- Навигационен бар -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('workout-tab', this)">🏋️ Тренировки</button>
+        <button class="tab-btn" onclick="switchTab('nutrition-tab', this)">🥗 Хранене</button>
+        <button class="tab-btn" onclick="switchTab('water-tab', this)">💧 Вода</button>
+        <button class="tab-btn" onclick="switchTab('recipes-tab', this)">📖 Бележки</button>
+    </div>
+</div>
+
+<script>
+    // Функция за фойерверки (Confetti)
+    function triggerConfetti() {
+        confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
+
+    // Табове логика
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // Дни от седмицата логика
+    function selectDay(day, btn) {
+        document.querySelectorAll('.day-btn').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        
+        let list = document.getElementById('exercises-list');
+        if(day === 'mon') {
+            list.innerHTML = `
+                <div class="exercise-item"><strong>1. Клекове със собствено тегло:</strong> 4 серии x 15 повторения</div>
+                <div class="exercise-item"><strong>2. Лицеви опори:</strong> 4 серии x 12 повторения</div>
+                <div class="exercise-item"><strong>3. Напади:</strong> 3 серии x 10 повторения (на крак)</div>`;
+        } else if(day === 'tue') {
+            list.innerHTML = `
+                <div class="exercise-item"><strong>1. Планк:</strong> 3 серии x 45 секунди</div>
+                <div class="exercise-item"><strong>2. Коремни преси:</strong> 4 серии x 20 повторения</div>
+                <div class="exercise-item"><strong>3. Повдигане на крака:</strong> 3 серии x 15 повторения</div>`;
+        } else if(day === 'wed') {
+            list.innerHTML = `
+                <div class="exercise-item"><strong>1. Лицеви опори с широк хват:</strong> 3 серии x 12 повторения</div>
+                <div class="exercise-item"><strong>2. Кофички на стол:</strong> 3 серии x 10 повторения</div>
+                <div class="exercise-item"><strong>3. Раменни преси с дъмбели/бутилки:</strong> 3 серии x 12 повторения</div>`;
+        } else {
+            list.innerHTML = `
+                <div class="exercise-item"><strong>1. Цялостно раздвижване и кардио:</strong> 30 минути</div>
+                <div class="exercise-item"><strong>2. Стречънг и разтягане:</strong> 15 минути</div>`;
+        }
+    }
+
+    // Макроси логика
+    let consumed = { p: 0, c: 0, f: 0 };
+    function addFood(p, c, f) {
+        consumed.p += p;
+        consumed.c += c;
+        consumed.f += f;
+        document.getElementById('c-p').innerText = consumed.p;
+        document.getElementById('c-c').innerText = consumed.c;
+        document.getElementById('c-f').innerText = consumed.f;
+        
+        // Ако наближи или надхвърли целите, пускаме фойерверки
+        if (consumed.p >= 150) {
+            triggerConfetti();
+        }
+    }
+    function resetMacros() {
+        consumed = { p: 0, c: 0, f: 0 };
+        document.getElementById('c-p').innerText = 0;
+        document.getElementById('c-c').innerText = 0;
+        document.getElementById('c-f').innerText = 0;
+    }
+
+    // Воден тракер логика с фойерверки при изпълнение на целта
+    let waterDrank = 0;
+    const waterGoal = 3.0;
+    function addWater(amount) {
+        waterDrank = Math.min(waterDrank + amount, waterGoal);
+        updateWaterUI();
+        
+        // Фойерверки при достигане на 3 литра вода
+        if (waterDrank >= waterGoal) {
+            triggerConfetti();
+        }
+    }
+    function resetWater() {
+        waterDrank = 0;
+        updateWaterUI();
+    }
+    function updateWaterUI() {
+        let percentage = (waterDrank / waterGoal) * 100;
+        let bar = document.getElementById('water-bar');
+        bar.style.width = percentage + '%';
+        bar.innerText = waterDrank.toFixed(3) + ' л';
+    }
+
+    // Бележки и localStorage
+    function saveNotes() {
+        let text = document.getElementById('user-notes').value;
+        localStorage.setItem('fitmax_user_notes', text);
+        alert('Бележката е запазена успешно!');
+    }
+    window.onload = function() {
+        let savedNotes = localStorage.getItem('fitmax_user_notes');
+        if(savedNotes) {
+            document.getElementById('user-notes').value = savedNotes;
+        }
+    }
+</script>
+
+</body>
+</html>
